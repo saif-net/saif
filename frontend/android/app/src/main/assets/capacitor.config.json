@@ -1,0 +1,15 @@
+{
+  "appId": "io.ionic.starter",
+  "appName": "sn2",
+  "bundledWebRuntime": false,
+  "npmClient": "yarn",
+  "webDir": "build",
+  "server": {
+    "url": "http://alexs-mbp.fios-router.home:8100"
+  },
+  "android": {
+    "backgroundColor": "#ffffffff",
+
+    "allowMixedContent": true
+  }
+}

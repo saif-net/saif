@@ -1,0 +1,7 @@
+{
+  "name": "sn2",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
