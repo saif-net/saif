@@ -7,18 +7,14 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
-  IonContent,
-  IonInput,
-  IonButton,
-  IonCol,
-  IonGrid,
-  IonRow
+  IonContent
 } from "@ionic/react";
 import { ChatFeed, Message } from "react-chat-ui";
 import { Query, Subscription, Mutation } from "react-apollo";
 import { gql } from "apollo-boost";
 import { Message as MessageType } from "../api/Message";
 import { User } from "../api/User";
+import Submit from "../components/Submit";
 
 interface ConversationDetailPageProps
   extends RouteComponentProps<{
@@ -26,6 +22,18 @@ interface ConversationDetailPageProps
   }> {}
 
 const GET_MESSAGES = gql`
+  query getMessages($id: ID) {
+    allMessages(filter: { conversation: { id: $id } }) {
+      id
+      message
+      timestamp
+      user {
+        id
+      }
+    }
+  }
+`;
+const SUBSCRIBE_MESSAGES = gql`
   subscription getMessages($id: ID) {
     Message(filter: { node: { conversation: { id: $id } } }) {
       node {
@@ -33,9 +41,6 @@ const GET_MESSAGES = gql`
         message
         timestamp
         userId
-        # user {
-        #   id
-        # }
       }
     }
   }
@@ -43,7 +48,11 @@ const GET_MESSAGES = gql`
 
 const ADD_MESSAGE = gql`
   mutation AddMessage($message: String, $conversation: ID, $user: ID) {
-    createMessage(message: $message, conversationId: $conversation, userId: $user) {
+    createMessage(
+      message: $message
+      conversationId: $conversation
+      userId: $user
+    ) {
       id
       message
       timestamp
@@ -52,13 +61,18 @@ const ADD_MESSAGE = gql`
 `;
 
 interface MessagesQuery {
-  Message: {
-    node: {
-      id: string;
-      message: MessageType;
-      userId: string
-    };
-  };
+  allMessages?: Array<{
+    id: string;
+    message: string;
+    user: {id: string};
+  }>;
+  // Message: {
+  //   node: {
+  //     id: string;
+  //     message: MessageType;
+  //     userId: string
+  //   };
+  // };
 }
 
 interface MessagesInput {
@@ -72,8 +86,8 @@ interface NewMessage {
 interface MessageMutation {
   message: string;
   // userId: string;
-  conversation: string
-  user: string
+  conversation: string;
+  user: string;
   // timestamp: string;
 }
 
@@ -109,11 +123,14 @@ const Details: React.FC<ConversationDetailPageProps> = ({ match }) => {
       {/*  
       // @ts-ignore */}
       <IonContent padding>
-        <Subscription<MessagesQuery, MessagesInput>
-          subscription={GET_MESSAGES}
+        <Query<MessagesQuery, MessagesInput>
+          query={GET_MESSAGES}
           variables={{ id: match.params.id }}
         >
           {({ loading, data, error }) => {
+            if (loading) {
+              console.log("Loading");
+            }
             if (error) {
               console.log(error);
               return `Error! ${error.message}`;
@@ -121,16 +138,23 @@ const Details: React.FC<ConversationDetailPageProps> = ({ match }) => {
             if (!data) {
               return `No Messages!`;
             }
+            if (!data.allMessages) {
+              return `No Messages!`;
+            }
             console.log(data);
-            const newItem =  new Message({ id: data.Message.node.userId, message: data.Message.node.message }) 
+            const m = data.allMessages.map(m => new Message({
+                id: (m.user ? m.user.id : 0),
+                message: m.message
+            }))
+            console.log(m)
+            // const newItem = new Message({
+            //   id: data.Message.node.userId,
+            //   message: data.Message.node.message
+            // });
             return (
               <ChatFeed
-                messages={} // Boolean: list of message objects
+                messages={m} // Boolean: list of message objects
                 // isTyping={isTyping} // Boolean: is the recipient typing
-                // hasInputField={true} // Boolean: use our input, or use your own
-                // showSenderName // show the name of the user who sent the message
-                // bubblesCentered={false} //Boolean should the bubbles be centered in the feed?
-                // JSON: Custom bubble styles
                 // bubbleStyles={{
                 //   text: {
                 //     fontSize: 10
@@ -143,44 +167,26 @@ const Details: React.FC<ConversationDetailPageProps> = ({ match }) => {
               />
             );
           }}
-        </Subscription>
+        </Query>
         <Mutation<NewMessage, MessageMutation> mutation={ADD_MESSAGE}>
           {(addMessage, data) => {
-            console.log(data)
+            console.log(data);
             return (
-              <IonContent>
-                <IonGrid>
-                  <IonRow>
-                    {/* <IonCol size="6"> */}
-                    <IonInput
-                      autofocus
-                      placeholder="Message ..."
-                      value={currentMessage}
-                      onChange={e =>
-                        // @ts-ignore
-                        e.target ? setMessage(e.target.value) : null
-                      }
-                    />
-                    {/* </IonCol> */}
-                    {/* <IonCol size="3"> */}
-                    <IonButton
-                      onClick={() =>
-                        addMessage({
-                          variables: {
-                            message: currentMessage,
-                            user: "cjyx3f12y00es0151ycbbdcvx",
-                            conversation: match.params.id,
-                            // timestamp: Date.now().toString()
-                          }
-                        })
-                      }
-                    >
-                      Send
-                    </IonButton>
-                    {/* </IonCol> */}
-                  </IonRow>
-                </IonGrid>
-              </IonContent>
+              <Submit
+                onSubmit={(value) => {
+                  const m = {
+                    variables: {
+                      message: value,
+                      user: "cjyx3f12y00es0151ycbbdcvx",
+                      conversation: match.params.id
+                      // timestamp: Date.now().toString()
+                    }
+                  }
+                  console.log(m)
+                  addMessage(m)
+                }
+                }
+              />
             );
           }}
         </Mutation>
