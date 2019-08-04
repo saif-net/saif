@@ -19,7 +19,7 @@ import React from "react";
 import "./Intro.css";
 
 const Tab1: React.FunctionComponent = () => {
-  const appName = "Safety Net";
+  const appName = "SAIF";
   return (
     <>
       <IonHeader>
@@ -36,10 +36,7 @@ const Tab1: React.FunctionComponent = () => {
           </IonCardHeader>
           <IonCardContent>
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Explicabo, corrupti autem quo dolorum nemo officia! Ullam libero
-              consequuntur officiis! Magnam rerum repudiandae iusto, pariatur
-              aut dolorum vel tenetur aliquid ipsam.
+            Hello! Welcome to SAIF! SAIF is here to serve as a personal assistant to anyone who has a mental disorder or has experienced any sort of traumatic event. We’ve partnered with Buddy Check to ensure people have a safe, supportive network of people to help aid in the recovery process. 
             </p>
           </IonCardContent>
         </IonCard>
