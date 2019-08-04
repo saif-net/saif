@@ -5,6 +5,7 @@ type User @model {
   id: ID! @isUnique @fake(type: uuid)
   name: String @examples(type: findName)
   conversations: [Conversation!]! @relation(name: "ConversationUsers")
+  messages: [Message!]! @relation(name: "UserMessages")
 }
 
 type Conversation @model {
@@ -18,7 +19,7 @@ type Message @model {
   id: ID! @isUnique @fake(type: uuid)
   message: String @fake(type: sentenct)
   timestamp: DateTime
-  user: User
+  user: User @relation(name: "UserMessages")
   conversation: Conversation @relation(name: "ConversationMessages")
 }
 

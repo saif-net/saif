@@ -18,12 +18,12 @@
 types: ./types.graphql
 
 
-functions:
-  bot:
-    handler:
-      code: src/bot.js
-    type: resolver
-    schema: src/bot.graphql
+# functions:
+  # bot:
+  #   handler:
+  #     code: src/bot.js
+  #   type: resolver
+  #   schema: src/bot.graphql
   # mock:
   #   handler:
   #     code: src/mock.js

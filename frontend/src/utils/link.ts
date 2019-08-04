@@ -3,17 +3,17 @@ import { HttpLink } from 'apollo-link-http';
 import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 
-const WS_URL = "http://localhost:60000/simple/v1/cjyw85cne00040151bf2rji4x"
-const HTTP_URL = "ws://localhost:60000/subscriptions/v1/cjyw85cne00040151bf2rji4x"
+const WS_URL = "wss://subscriptions.us-west-2.graph.cool/v1/cjyx1izmn1l770182pw0b0knp"
+const HTTP_URL = "https://api.graph.cool/simple/v1/cjyx1izmn1l770182pw0b0knp"
 
 // Create an http link:
 const httpLink = new HttpLink({
-  uri: WS_URL
+  uri: HTTP_URL
 });
 
 // Create a WebSocket link:
 const wsLink = new WebSocketLink({
-  uri: HTTP_URL,
+  uri: WS_URL,
   options: {
     reconnect: true
   }
