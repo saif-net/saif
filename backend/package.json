@@ -1,0 +1,9 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "My Graphcool Service",
+  "dependencies": {
+    "dialogflow": "^0.10.3",
+    "faker": "^4.1.0"
+  }
+}

@@ -1,0 +1,5 @@
+type MessagePayload {
+    message Message
+}
+
+extend type

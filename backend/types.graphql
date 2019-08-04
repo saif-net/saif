@@ -1,0 +1,36 @@
+# The following types define the data model of the example service
+# based on which the GraphQL API is generated
+
+type User @model {
+  id: ID! @isUnique @fake(type: uuid)
+  name: String @examples(type: findName)
+  conversations: [Conversation!]! @relation(name: "ConversationUsers")
+}
+
+type Conversation @model {
+  id: ID! @isUnique @fake(type: uuid)
+  name: String! @fake(values: ["Conversation Title"])
+  users: [User!]! @relation(name: "ConversationUsers")
+  messages: [Message!]! @relation(name: "ConversationMessages")
+}
+
+type Message @model {
+  id: ID! @isUnique @fake(type: uuid)
+  message: String @fake(type: sentenct)
+  timestamp: DateTime
+  user: User
+  conversation: Conversation @relation(name: "ConversationMessages")
+}
+
+# Uncomment the model below as well
+
+# type Post @model {
+#   id: ID! @isUnique
+#   title: String!
+#
+#   # Every relation also required a back-relation (to determine 1:1, 1:n or n:m)
+#   author: User! @relation(name: "UserPosts")
+# }
+
+# type User @model {
+  

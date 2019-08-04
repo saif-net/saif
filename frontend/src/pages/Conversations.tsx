@@ -2,18 +2,37 @@ import React from "react";
 import { RouteComponentProps } from "react-router";
 import {
   IonContent,
-  IonAvatar,
   IonHeader,
-  IonItem,
-  IonLabel,
   IonList,
   IonTitle,
   IonToolbar
 } from "@ionic/react";
+import ConversationItem from "../components/ConversationItem";
+import { gql } from "apollo-boost";
+
+import { Query, QueryProps } from "react-apollo";
+import { Conversation } from "../api/Conversation";
+import { Message } from "../api/Message";
+
+const GET_CONVERSATIONS = gql`
+  query {
+    allConversations {
+      id
+      name
+      messages(first: 5) {
+        message
+      }
+    }
+  }
+`;
+interface ConversationQuery {
+  allConversations: Array<Conversation>
+}
 
 const Conversations: React.FunctionComponent<RouteComponentProps> = ({
   history
 }) => {
+  
   return (
     <>
       <IonHeader>
@@ -22,16 +41,22 @@ const Conversations: React.FunctionComponent<RouteComponentProps> = ({
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonList style={{paddingLeft: '0'}}>
-          <IonItem href="/conversations/details/john">
-            <IonAvatar style={{marginRight: '1rem'}}>
-              <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y" />
-            </IonAvatar>
-            <IonLabel>
-              <h3>John Doe</h3>
-              <p>hey dude what's up ...</p>
-            </IonLabel>
-          </IonItem>
+        <IonList style={{ paddingLeft: "0" }}>
+          <Query<ConversationQuery> query={GET_CONVERSATIONS}>
+            {({loading, data, error}) => {
+              if (loading) return "Loading...";
+              if (error) return `Error! ${error.message}`;
+              if (!data) { return `Error!`}
+              console.log(data)
+              return (
+                <>
+                {data.allConversations.map(c => (
+                  <ConversationItem key={c.id} name={c.name} conversationId={c.id} snippet={c.messages.length > 0 ? c.messages.map((m: Message) => m.message).reduce((acc, cur) => cur): ""} />
+                ))}
+                </>
+              );
+            }}
+          </Query>
         </IonList>
       </IonContent>
     </>

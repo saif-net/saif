@@ -17,6 +17,8 @@ import Tab2 from "./pages/Conversations";
 import Tab3 from "./pages/Profile";
 import ConversationDetails from "./pages/Conversation";
 
+import { ApolloProvider } from "react-apollo";
+
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/core/css/core.css";
 
@@ -32,7 +34,8 @@ import "@ionic/core/css/text-alignment.css";
 import "@ionic/core/css/text-transformation.css";
 import "@ionic/core/css/flex-utils.css";
 import "@ionic/core/css/display.css";
-import "./App.css"
+import "./App.css";
+import { client } from "./utils/client";
 
 const App: React.FunctionComponent = () => (
   <IonApp>
@@ -42,7 +45,10 @@ const App: React.FunctionComponent = () => (
           <IonRouterOutlet>
             <Route path="/:tab(intro)" component={Tab1} exact={true} />
             <Route path="/:tab(conversations)" component={Tab2} exact={true} />
-            <Route path="/:tab(conversations)/details/:id" component={ConversationDetails} />
+            <Route
+              path="/:tab(conversations)/details/:id"
+              component={ConversationDetails}
+            />
             <Route path="/:tab(profile)" component={Tab3} />
             <Route exact path="/" render={() => <Redirect to="/intro" />} />
           </IonRouterOutlet>
@@ -66,4 +72,12 @@ const App: React.FunctionComponent = () => (
   </IonApp>
 );
 
-export default App;
+const StatefulApp = () => {
+  return (
+    <ApolloProvider client={client}>
+      <App />
+    </ApolloProvider>
+  );
+};
+
+export default StatefulApp;
