@@ -5,7 +5,7 @@ import { getMainDefinition } from 'apollo-utilities';
 
 type Env = "dev" | "prod"
 
-const ENV: Env = "dev"
+const ENV: Env = "prod"
 let WS_URL: string = ""
 let HTTP_URL: string = ""
 // @ts-ignore
