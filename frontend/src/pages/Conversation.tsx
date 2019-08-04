@@ -8,12 +8,17 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonInput
+  IonInput,
+  IonButton,
+  IonCol,
+  IonGrid,
+  IonRow
 } from "@ionic/react";
 import { ChatFeed, Message } from "react-chat-ui";
-import { Query } from "react-apollo";
+import { Query, Subscription, Mutation } from "react-apollo";
 import { gql } from "apollo-boost";
 import { Message as MessageType } from "../api/Message";
+import { User } from "../api/User";
 
 interface ConversationDetailPageProps
   extends RouteComponentProps<{
@@ -21,31 +26,55 @@ interface ConversationDetailPageProps
   }> {}
 
 const GET_MESSAGES = gql`
-subscription {
-  Message(filter: {node: {conversation: {id: $id}}}) {
-    node {
-      id
-      messages
-      timestamp
-      user {
-        name
+  subscription getMessages($id: ID) {
+    Message(filter: { node: { conversation: { id: $id } } }) {
+      node {
+        id
+        message
+        timestamp
+        userId
+        # user {
+        #   id
+        # }
       }
     }
   }
-}
+`;
+
+const ADD_MESSAGE = gql`
+  mutation AddMessage($message: String, $conversation: ID, $user: ID) {
+    createMessage(message: $message, conversationId: $conversation, userId: $user) {
+      id
+      message
+      timestamp
+    }
+  }
 `;
 
 interface MessagesQuery {
   Message: {
     node: {
       id: string;
-      messages: Array<MessageType>;
+      message: MessageType;
+      userId: string
     };
   };
 }
 
 interface MessagesInput {
   id: string;
+}
+
+interface NewMessage {
+  id: string;
+}
+
+interface MessageMutation {
+  message: string;
+  // userId: string;
+  conversation: string
+  user: string
+  // timestamp: string;
 }
 
 const Details: React.FC<ConversationDetailPageProps> = ({ match }) => {
@@ -64,6 +93,7 @@ const Details: React.FC<ConversationDetailPageProps> = ({ match }) => {
     // new Message({ id: 0, message: "I'm you -- the blue bubble!" })
   ];
   // console.log(messages);
+  const [currentMessage, setMessage] = useState("");
   const [isTyping, setTypingState] = useState(false);
   console.log(isTyping);
   return (
@@ -79,17 +109,23 @@ const Details: React.FC<ConversationDetailPageProps> = ({ match }) => {
       {/*  
       // @ts-ignore */}
       <IonContent padding>
-        <Query<MessagesQuery, MessagesInput> query={GET_MESSAGES}>
+        <Subscription<MessagesQuery, MessagesInput>
+          subscription={GET_MESSAGES}
+          variables={{ id: match.params.id }}
+        >
           {({ loading, data, error }) => {
-            if (loading) return "Loading...";
-            if (error) return `Error! ${error.message}`;
+            if (error) {
+              console.log(error);
+              return `Error! ${error.message}`;
+            }
             if (!data) {
-              return `Error!`;
+              return `No Messages!`;
             }
             console.log(data);
+            const newItem =  new Message({ id: data.Message.node.userId, message: data.Message.node.message }) 
             return (
               <ChatFeed
-                messages={data} // Boolean: list of message objects
+                messages={} // Boolean: list of message objects
                 // isTyping={isTyping} // Boolean: is the recipient typing
                 // hasInputField={true} // Boolean: use our input, or use your own
                 // showSenderName // show the name of the user who sent the message
@@ -107,10 +143,47 @@ const Details: React.FC<ConversationDetailPageProps> = ({ match }) => {
               />
             );
           }}
-        </Query>
-        <IonContent>
-          <IonInput autofocus placeholder="Message ..." />
-        </IonContent>
+        </Subscription>
+        <Mutation<NewMessage, MessageMutation> mutation={ADD_MESSAGE}>
+          {(addMessage, data) => {
+            console.log(data)
+            return (
+              <IonContent>
+                <IonGrid>
+                  <IonRow>
+                    {/* <IonCol size="6"> */}
+                    <IonInput
+                      autofocus
+                      placeholder="Message ..."
+                      value={currentMessage}
+                      onChange={e =>
+                        // @ts-ignore
+                        e.target ? setMessage(e.target.value) : null
+                      }
+                    />
+                    {/* </IonCol> */}
+                    {/* <IonCol size="3"> */}
+                    <IonButton
+                      onClick={() =>
+                        addMessage({
+                          variables: {
+                            message: currentMessage,
+                            user: "cjyx3f12y00es0151ycbbdcvx",
+                            conversation: match.params.id,
+                            // timestamp: Date.now().toString()
+                          }
+                        })
+                      }
+                    >
+                      Send
+                    </IonButton>
+                    {/* </IonCol> */}
+                  </IonRow>
+                </IonGrid>
+              </IonContent>
+            );
+          }}
+        </Mutation>
       </IonContent>
     </>
   );

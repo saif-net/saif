@@ -45,6 +45,7 @@ const Conversations: React.FunctionComponent<RouteComponentProps> = ({
           <Query<ConversationQuery> query={GET_CONVERSATIONS}>
             {({loading, data, error}) => {
               if (loading) return "Loading...";
+              console.log(error)
               if (error) return `Error! ${error.message}`;
               if (!data) { return `Error!`}
               console.log(data)

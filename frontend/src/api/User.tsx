@@ -1,5 +1,3 @@
-import p from "path";
-
 type ID = string;
 
 interface User {
@@ -7,4 +5,5 @@ interface User {
   id: ID;
 }
 
-// export { User };
+// @ts-ignore
+export { User };
